@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Friendship Game 😎</title>
+
+<style>
+body{
+    background: radial-gradient(circle at top,#d0f0ff,#e8f5e9,#fff);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    margin:0;
+    font-family:Arial;
+    overflow:hidden;
+}
+
+/* Heading */
+h1{
+    font-size:2.5rem;
+    background: linear-gradient(90deg,#2196F3,#4CAF50);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align:center;
+}
+
+/* Buttons */
+.btn-container{
+    position:relative;
+    display:flex;
+    gap:20px;
+}
+
+button{
+    padding:15px 30px;
+    font-size:1.2rem;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+#yesBtn{
+    background:#4CAF50;
+    color:white;
+}
+
+#noBtn{
+    background:#607D8B;
+    color:white;
+    position:absolute;
+    left:120px;
+}
+
+#score{
+    margin-top:15px;
+    font-size:20px;
+}
+
+/* 🌟 Floating emojis FULL SCREEN */
+.float{
+    position:fixed;
+    font-size:22px;
+    animation:floatUp linear infinite;
+    pointer-events:none;
+    z-index:0;
+}
+
+@keyframes floatUp{
+    0%{ transform:translateY(0);}
+    100%{ transform:translateY(-120vh);}
+}
+
+/* 👇 content always above emojis */
+body > *:not(.float){
+    position:relative;
+    z-index:1;
+}
+
+/* Canvas */
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Best Friend Banoge? 🤝</h1>
+
+<div class="btn-container">
+<button id="yesBtn">YES 😍</button>
+<button id="noBtn">NO 😒</button>
+</div>
+
+<div id="score">Score: 0 🎯</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+
+let yesBtn = document.getElementById("yesBtn");
+let noBtn = document.getElementById("noBtn");
+let scoreEl = document.getElementById("score");
+
+let yesSize = 1;
+let noSize = 1;
+let score = 0;
+
+// 😈 NO emojis
+let noEmojis = ["😒","😤","😡","😭","😵","🤡","👀","😜","💀"];
+
+// 🌟 Floating emoji sets
+let emojiSets = [
+["💖","✨","😊","🔥","🎉"],
+["😂","🤣","😜","🤪","😎"],
+["🌸","🌼","🌺","🌻","🌷"],
+["⚡","🔥","💥","🌟","✨"]
+];
+
+let currentSet = 0;
+
+// ✅ YES CLICK
+yesBtn.onclick = () => {
+
+    document.body.innerHTML = `
+    <canvas id="confetti"></canvas>
+    <div style="text-align:center">
+        <h1 style="color:#4CAF50">Yayyyy 😍</h1>
+        <p style="font-size:22px">
+        Ab se hum best friends forever 😎🤝
+        </p>
+        <div style="font-size:100px">🎉🤝🎊</div>
+    </div>
+    `;
+
+    startConfetti();
+};
+
+// ❌ NO CLICK
+noBtn.onclick = () => {
+
+    score++;
+    scoreEl.innerText = "Score: " + score + " 🎯";
+
+    // YES bigger
+    yesSize += 0.12;
+    yesBtn.style.transform = `scale(${yesSize})`;
+
+    // NO smaller
+    noSize -= 0.08;
+    if(noSize < 0.4) noSize = 0.4;
+    noBtn.style.transform = `scale(${noSize})`;
+
+    // emoji change
+    let emoji = noEmojis[Math.floor(Math.random()*noEmojis.length)];
+    noBtn.innerText = "NO " + emoji;
+
+    // move randomly
+    noBtn.style.position = "fixed";
+    noBtn.style.left = Math.random()*window.innerWidth + "px";
+    noBtn.style.top = Math.random()*window.innerHeight + "px";
+
+    // change emoji set
+    currentSet = (currentSet + 1) % emojiSets.length;
+};
+
+// 🌟 FLOATING EMOJIS FULL SCREEN
+function createFloat(){
+    let el = document.createElement("div");
+    el.classList.add("float");
+
+    let emojis = emojiSets[currentSet];
+    el.innerHTML = emojis[Math.floor(Math.random()*emojis.length)];
+
+    // 🔥 full screen random spawn
+    el.style.left = Math.random()*100 + "vw";
+    el.style.top = Math.random()*100 + "vh";
+
+    el.style.animationDuration = (Math.random()*4+3)+"s";
+
+    document.body.appendChild(el);
+
+    setTimeout(()=>el.remove(),6000);
+}
+
+setInterval(createFloat,200);
+
+// 🎊 CONFETTI
+function startConfetti(){
+    let canvas = document.getElementById("confetti");
+    let ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let pieces = [];
+
+    for(let i=0;i<120;i++){
+        pieces.push({
+            x:Math.random()*canvas.width,
+            y:Math.random()*canvas.height,
+            dy:Math.random()*5+2,
+            size:Math.random()*5+2
+        });
+    }
+
+    function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        pieces.forEach(p=>{
+            ctx.fillRect(p.x,p.y,p.size,p.size);
+            p.y += p.dy;
+
+            if(p.y > canvas.height){
+                p.y = 0;
+            }
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+}
+
+</script>
+
+</body>
+</html>
